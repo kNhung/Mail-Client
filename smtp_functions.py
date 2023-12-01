@@ -1,8 +1,19 @@
 import socket
+from email import Email
+
+def input_content():
+    print("Content:\n")
+    lines = []
+    while True:
+        line = input()
+        if(line.lower()) == '-end-': # Nếu người dùng nhập '-end-', kết thúc nhập
+            break
+        lines.append(line)
+    return lines
 
 def send_email(SMTP_HOST, SMTP_PORT):
-    # Kết nối đến SMTP Server
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as smtp_socket:
+        # Kết nối đến SMTP Server
         smtp_socket.connect((SMTP_HOST, SMTP_PORT))
         respone = smtp_socket.recv(1024).decode()
         print(respone)
@@ -13,11 +24,13 @@ def send_email(SMTP_HOST, SMTP_PORT):
         print(response)
 
         # Viết code để gửi email thông qua socket ở đây
-        smtp_socket.sendall(b'MAIL FROM: <sender@example.com>\r\n')
+        sender = input("From: ")
+        smtp_socket.sendall(f'MAIL FROM: {sender}\r\n'.encode())
         response = smtp_socket.recv(1024).decode()
         print(response)  # Phản hồi từ server
 
-        smtp_socket.sendall(b'RCPT TO: <receiver@example.com>\r\n')
+        recipient = input("To: ")
+        smtp_socket.sendall(f'RCPT TO: {recipient}\r\n'.encode())
         response = smtp_socket.recv(1024).decode()
         print(response)  # Phản hồi từ server
 
@@ -25,9 +38,11 @@ def send_email(SMTP_HOST, SMTP_PORT):
         response = smtp_socket.recv(1024).decode()
         print(response)  # Phản hồi từ server
 
-        smtp_socket.sendall(b'Subject: Test email\r\n')
+        subject = input("Subject: ")
+        smtp_socket.sendall(f'Subject: {subject}\r\n'.encode())
         smtp_socket.sendall(b'\r\n')
-        smtp_socket.sendall(b'This is a test email\r\n')
+        content = input_content()
+        smtp_socket.sendall(f'{content}\r\n'.encode())
         smtp_socket.sendall(b'.\r\n')  # Kết thúc nội dung email
         response = smtp_socket.recv(1024).decode()
         print(response)  # Phản hồi từ server

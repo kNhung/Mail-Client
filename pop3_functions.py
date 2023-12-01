@@ -1,4 +1,24 @@
 import socket
+from email import Email
+
+def display_mail(mail):
+    print("From: {mail.sender}")
+    print("To: {mail.recipient}")
+    print("Subject: {mail.subject}")
+    print("Content:")
+    print(mail.content)
+    if(mail.attachment != None):
+        print("Mail này có đính kèm, bạn có muốn tải xuống không?")
+        while True:
+            choice = input("y/Yes    n/No:   ")
+            if choice == 'y':
+                # Viết hàm tải file
+                break
+            elif choice == 'n':
+                break
+            else:
+                print("Mời nhập lại!")
+        
 
 def receive_email(POP3_HOST, POP3_PORT):
     # Kết nối đến POP3 Server
