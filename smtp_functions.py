@@ -2,16 +2,26 @@ import socket
 from email import Email
 
 def input_content():
-    print("Content:\n")
-    lines = []
+    print("Content:")
+    content = ""
     while True:
         line = input()
         if(line.lower()) == '-end-': # Nếu người dùng nhập '-end-', kết thúc nhập
             break
-        lines.append(line)
-    return lines
+        content += line + '\n' # Kết hợp các dòng thành 1 chuỗi duy nhất
+    return content.rstrip('\n') # Loại bỏ kí tự xuống dòng cuối cùng nếu có
+
+def write_mail():
+    sender = input("From: ")
+    receiver = input("To: ")
+    subject = input("Subject: ")
+    content = input_content()
+    mail = Email(sender,receiver,subject,content)
+    return mail
+
 
 def send_email(SMTP_HOST, SMTP_PORT):
+    mail = write_mail()
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as smtp_socket:
         # Kết nối đến SMTP Server
         smtp_socket.connect((SMTP_HOST, SMTP_PORT))
@@ -24,13 +34,11 @@ def send_email(SMTP_HOST, SMTP_PORT):
         print(response)
 
         # Viết code để gửi email thông qua socket ở đây
-        sender = input("From: ")
-        smtp_socket.sendall(f'MAIL FROM: {sender}\r\n'.encode())
+        smtp_socket.sendall(f'MAIL FROM: {mail.sender}\r\n'.encode())
         response = smtp_socket.recv(1024).decode()
         print(response)  # Phản hồi từ server
 
-        recipient = input("To: ")
-        smtp_socket.sendall(f'RCPT TO: {recipient}\r\n'.encode())
+        smtp_socket.sendall(f'RCPT TO: {mail.receiver}\r\n'.encode())
         response = smtp_socket.recv(1024).decode()
         print(response)  # Phản hồi từ server
 
@@ -38,11 +46,9 @@ def send_email(SMTP_HOST, SMTP_PORT):
         response = smtp_socket.recv(1024).decode()
         print(response)  # Phản hồi từ server
 
-        subject = input("Subject: ")
-        smtp_socket.sendall(f'Subject: {subject}\r\n'.encode())
+        smtp_socket.sendall(f'Subject: {mail.subject}\r\n'.encode())
         smtp_socket.sendall(b'\r\n')
-        content = input_content()
-        smtp_socket.sendall(f'{content}\r\n'.encode())
+        smtp_socket.sendall(f'{mail.content}\r\n'.encode())
         smtp_socket.sendall(b'.\r\n')  # Kết thúc nội dung email
         response = smtp_socket.recv(1024).decode()
         print(response)  # Phản hồi từ server

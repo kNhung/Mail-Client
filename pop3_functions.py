@@ -1,12 +1,9 @@
 import socket
 from email import Email
+from email import parse_emails
 
 def display_mail(mail):
-    print("From: {mail.sender}")
-    print("To: {mail.recipient}")
-    print("Subject: {mail.subject}")
-    print("Content:")
-    print(mail.content)
+    mail.display_info(mail)
     if(mail.attachment != None):
         print("Mail này có đính kèm, bạn có muốn tải xuống không?")
         while True:
@@ -18,7 +15,7 @@ def display_mail(mail):
                 break
             else:
                 print("Mời nhập lại!")
-        
+    print('\n')
 
 def receive_email(POP3_HOST, POP3_PORT):
     # Kết nối đến POP3 Server
@@ -43,19 +40,26 @@ def receive_email(POP3_HOST, POP3_PORT):
 
         #Lấy danh sách email
         pop3_socket.sendall(b'LIST\r\n')
-        response = pop3_socket.recv(1024).decode()
-        print(response)
+        emails_info = pop3_socket.recv(1024).decode()
+        print(emails_info)
+        
+        # Lặp qua danh sách các email và lấy nội dung của từng email
+        emails = emails_info.strip().split('\n')[1:]
+        emails_list = []  # Danh sách lưu trữ các đối tượng Email
 
-        #Lấy nội dung email
-        pop3_socket.sendall(b'RETR 1\r\n')
-        email_content = b''
-        while True:
-            part = pop3_socket.recv(1024)
-            if not part:
-                break
-            email_content += part
-        email_content = email_content.decode()
-        print(email_content)
+        for email in emails:
+            email_number = email.split()[0]
+            # Lấy nội dung của email có số thứ tự là email_number
+            pop3_socket.sendall(f'RETR {email_number}\r\n'.encode())
+            email_content = pop3_socket.recv(4096).decode()
+
+            # Tạo đối tượng Email và thêm nội dung email vào thuộc tính content
+            new_email = Email(sender='', receiver='', subject='', content=email_content, attachment=None)
+            emails_list.append(new_email)  # Thêm đối tượng Email vào danh sách
+
+        # In danh sách mail
+        for mail in emails_list:
+            display_mail(mail)
 
         # Đóng kết nối
         pop3_socket.sendall(b'QUIT\r\n')
