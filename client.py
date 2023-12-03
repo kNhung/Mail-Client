@@ -1,14 +1,17 @@
 import socket
 
+from consolemenu import *
+from consolemenu.items import *
+
 SMTP_HOST = '127.0.0.1'
 SMTP_PORT = 7500
 POP3_HOST = '127.0.0.1'
 POP3_PORT = 8500
 
-USERNAME = 'npkn'
-PASSWORD = 'hihihihi'
 DOMAIN = '@gmail.com'
 
+username = 'npkn'
+password = 'hihihihi'
 
 def smtp_valid_reponse (code): 
     code = code[:3]
@@ -27,13 +30,13 @@ def pop3_valid_reponse(code) :
 
 
 def send_mail():
-    # Whenever u want to send your mail using SMTP, u have to send the following commands:
+    # whenever u want to sent your mail using SMTP, u have to send these following commands:
     # HELO / EHLO
     # MAIL FROM - includes a sender mailbox
     # RCPT TO - includes a destination mailbox
     # DATA - mail data
     # QUIT
-    # After each command, u have to check the Code response by the server (using valid_response func)
+    # After each command, u have to check the Code respone by the server (using valid_response func)
 
     print("Enter destination mail: ")
     destination_user = input()
@@ -53,7 +56,7 @@ def send_mail():
         smtp_socket.sendall(('QUIT\r\n').encode())
         return -1    
     # MAIL FROM
-    smtp_socket.sendall(('MAIL FROM: ' + USERNAME + DOMAIN + '\r\n').encode())
+    smtp_socket.sendall(('MAIL FROM: ' + username + DOMAIN + '\r\n').encode())
     if (smtp_valid_reponse(smtp_socket.recv(1024).decode()) == 0) : 
         smtp_socket.sendall(('QUIT\r\n').encode())
         return -1
@@ -75,17 +78,19 @@ def send_mail():
         return -1
 
     smtp_socket.sendall(('QUIT\r\n').encode())
+    print("Press Enter to continue.")
+    input()
     
 
 
 def receive_mail():
-    # Whenever u want to send your mail using SMTP, u have to send the following commands:
+    # whenever u want to sent your mail using SMTP, u have to send these following commands:
     # USER
     # PASS
     # STAT
     # LIST
     # RETR
-    print("Opening the first message:")
+    print("Opening the first unread message:")
 
     pop3_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
@@ -94,12 +99,12 @@ def receive_mail():
         pop3_socket.sendall(('QUIT\r\n').encode())
         return -1
     
-    pop3_socket.sendall(('USER ' + USERNAME + DOMAIN + '\r\n').encode())
+    pop3_socket.sendall(('USER ' + username + DOMAIN + '\r\n').encode())
     if (pop3_valid_reponse(pop3_socket.recv(1024).decode()) == 0) : 
         pop3_socket.sendall(('QUIT\r\n').encode())
         return -1
     
-    pop3_socket.sendall(('PASS ' + PASSWORD + '\r\n').encode())
+    pop3_socket.sendall(('PASS ' + password + '\r\n').encode())
     if (pop3_valid_reponse(pop3_socket.recv(1024).decode()) == 0) : 
         pop3_socket.sendall(('QUIT\r\n').encode())
         return -1
@@ -120,11 +125,32 @@ def receive_mail():
     if (pop3_valid_reponse(message) == 0) : 
         pop3_socket.sendall(('QUIT\r\n').encode())
         return -1
-    
     print(message)
+    pop3_socket.sendall(b'DELE 1\r\n')
+    message = pop3_socket.recv(1024).decode()
+    if (pop3_valid_reponse(message) == 0) : 
+        pop3_socket.sendall(('QUIT\r\n').encode())
+        return -1
     pop3_socket.sendall(('QUIT\r\n').encode())
+    print("Press Enter to continue.")
+    input()
 
 
+def login():
+    global username
+    print("Please enter your username:")
+    username = input()
 
-send_mail()
-receive_mail()
+
+def menu():
+    # Create the menu
+    menu = ConsoleMenu("SIMPLE MAIL CLIENT", "Group 12!")
+    login_option = FunctionItem("Choose Username", login)
+    send_option = FunctionItem("Send Mail Using SMTP", send_mail)
+    receive_option = FunctionItem("Receive Mail Using Pop3", receive_mail)
+    menu.append_item(login_option)
+    menu.append_item(send_option)
+    menu.append_item(receive_option)
+    menu.show()
+
+menu()
