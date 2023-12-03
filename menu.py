@@ -1,5 +1,5 @@
 def display_menu():
-    print("1. Gửi mail")
-    print("2. Xem danh sách mail đã nhận")
-    print("3. Thoát")
-    return(int(input("Mời nhập lựa chọn: ")))
+    print("1. Send mail")
+    print("2. Recieved mails")
+    print("3. Quit")
+    return(int(input("Your choice: ")))

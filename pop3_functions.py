@@ -5,7 +5,7 @@ from email import parse_emails
 def display_mail(mail):
     mail.display_info(mail)
     if(mail.attachment != None):
-        print("Mail này có đính kèm, bạn có muốn tải xuống không?")
+        print("This mail has attachment, do you want to download?")
         while True:
             choice = input("y/Yes    n/No:   ")
             if choice == 'y':
@@ -14,7 +14,7 @@ def display_mail(mail):
             elif choice == 'n':
                 break
             else:
-                print("Mời nhập lại!")
+                print("Please choose again!")
     print('\n')
 
 def receive_email(POP3_HOST, POP3_PORT):

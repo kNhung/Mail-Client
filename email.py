@@ -1,9 +1,10 @@
 class Email:
-    def __init__(self, sender, receiver, subject, content, attachment=None):
+    def __init__(self, sender, receiver, subject, content, file_path=None, attachment=None):
         self.sender = sender
         self.receiver = receiver
         self.subject = subject
         self.content = content
+        self.file_path = file_path
         self.attachment = attachment
 
     def set_attachment(self, attachment):

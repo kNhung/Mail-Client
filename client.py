@@ -6,6 +6,8 @@ SMTP_HOST = '127.0.0.1'
 SMTP_PORT = 2225
 POP3_HOST = '127.0.0.1'
 POP3_PORT = 3335
+ # "D:\testfile_txt.txt"
+ # "D:\testfile_png.png"
 
 def main():
     while True:
@@ -18,7 +20,7 @@ def main():
             print("Xincamon")
             return
         else:
-            print("Mời chọn lại!")
+            print("Please choose again!")
     return
 
 
