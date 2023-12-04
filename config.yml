@@ -1,0 +1,17 @@
+Server:
+    SMTPServer: 127.0.0.1
+    Pop3Server: 127.0.0.1
+    SMTP: 2225
+    POP3: 3335
+    bufferSize: 2046
+    domain: "@gmail.com"
+Authentication:
+    username: ducnhat@gmail.com
+    password: xxxx #can be anything, due to it is test server
+# Filter:
+#     From: ahihi@testing.com, ahuu@testing.com
+#     To folder: Project
+#     Subject: "urgent", "ASAP", ... - To folder: Important
+#     Content: "report", "meeting", ...  - To folder: Work
+#     Spam: "virus", "hack", "crack", ... - To folder: Spam
+#smtp đòi ssl
