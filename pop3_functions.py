@@ -1,44 +1,60 @@
 import socket
 
-def receive_email(POP3_HOST, POP3_PORT):
-    # Kết nối đến POP3 Server
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as pop3_socket:
-        pop3_socket.connect((POP3_HOST, POP3_PORT))
-        response = pop3_socket.recv(1024).decode()
-        print(response)
 
-        # Viết code để nhận email từ server POP3 thông qua socket ở đây
-        pop3_socket.sendall(b'USER receiver@example.com\r\n')
-        response = pop3_socket.recv(1024).decode()
-        print(response)  # Phản hồi từ server
+def smtp_valid_reponse (code): 
+    code = code[:3]
+    code = int(code)
+    if (200 <= code < 400) : return 1
+    else : 
+        print("Error occurred. Quitting...")
+        return 0
+    
 
-        pop3_socket.sendall(b'PASS your_password\r\n')
-        response = pop3_socket.recv(1024).decode()
-        print(response)
+def send_mail(SMTP_HOST, SMTP_PORT, BUFFER_SIZE, DOMAIN, smtp_socket, username):
+    # whenever u want to sent your mail using SMTP, u have to send these following commands:
+    # HELO / EHLO
+    # MAIL FROM - includes a sender mailbox
+    # RCPT TO - includes a destination mailbox
+    # DATA - mail data
+    # QUIT
+    # After each command, u have to check the Code respone by the server (using valid_response func)
+    print("Enter destination mail: ")
+    destination_user = input()
+    print("Enter mail content: ")
+    data = input()
 
-        #Gửi lệnh để lấy số lượng email
-        pop3_socket.sendall(b'STAT\r\n')
-        response = pop3_socket.recv(1024).decode()
-        print(response)
+    smtp_socket.connect((SMTP_HOST, SMTP_PORT))
+    if (smtp_valid_reponse(smtp_socket.recv(BUFFER_SIZE).decode()) == 0) : 
+        smtp_socket.sendall(('QUIT\r\n').encode())
+        return -1
 
-        #Lấy danh sách email
-        pop3_socket.sendall(b'LIST\r\n')
-        response = pop3_socket.recv(1024).decode()
-        print(response)
+    # HELO/EHLO
+    smtp_socket.sendall(('EHLO testserver.com\r\n' ).encode())
+    if (smtp_valid_reponse(smtp_socket.recv(BUFFER_SIZE).decode()) == 0) : 
+        smtp_socket.sendall(('QUIT\r\n').encode())
+        return -1    
+    # MAIL FROM
+    smtp_socket.sendall(('MAIL FROM: ' + username + DOMAIN + '\r\n').encode())
+    if (smtp_valid_reponse(smtp_socket.recv(BUFFER_SIZE).decode()) == 0) : 
+        smtp_socket.sendall(('QUIT\r\n').encode())
+        return -1
+    # RCPT TO
+    smtp_socket.sendall(('RCPT TO: ' + destination_user + DOMAIN + '\r\n').encode())
+    if (smtp_valid_reponse(smtp_socket.recv(BUFFER_SIZE).decode()) == 0) : 
+        smtp_socket.sendall(('QUIT\r\n').encode())
+        return -1
 
-        #Lấy nội dung email
-        pop3_socket.sendall(b'RETR 1\r\n')
-        email_content = b''
-        while True:
-            part = pop3_socket.recv(1024)
-            if not part:
-                break
-            email_content += part
-        email_content = email_content.decode()
-        print(email_content)
+    # DATA
+    smtp_socket.sendall(('DATA\r\n').encode())
+    if (smtp_valid_reponse(smtp_socket.recv(BUFFER_SIZE).decode()) == 0) : 
+        smtp_socket.sendall(('QUIT\r\n').encode())
+        return -1
+    smtp_socket.sendall((data + '\r\n').encode())
+    smtp_socket.sendall(('.\r\n').encode())
+    if (smtp_valid_reponse(smtp_socket.recv(BUFFER_SIZE).decode()) == 0) : 
+        smtp_socket.sendall(('QUIT\r\n').encode())
+        return -1
 
-        # Đóng kết nối
-        pop3_socket.sendall(b'QUIT\r\n')
-        pop3_socket.close()
-
-        print("Email received successfully!")
+    smtp_socket.sendall(('QUIT\r\n').encode())
+    print("Press Enter to continue.")
+    input()
