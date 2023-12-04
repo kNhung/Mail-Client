@@ -1,39 +1,60 @@
 import socket
 
-def send_email(SMTP_HOST, SMTP_PORT):
-    # Kết nối đến SMTP Server
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as smtp_socket:
-        smtp_socket.connect((SMTP_HOST, SMTP_PORT))
-        respone = smtp_socket.recv(1024).decode()
-        print(respone)
 
-        # Gửi dữ liệu tới SMTP Server để gửi email
-        smtp_socket.sendall(b'EHLO example.com\r\n')
-        response = smtp_socket.recv(1024).decode()
-        print(response)
+def smtp_valid_reponse (code): 
+    code = code[:3]
+    code = int(code)
+    if (200 <= code < 400) : return 1
+    else : 
+        print("Error occurred. Quitting...")
+        return 0
+    
 
-        # Viết code để gửi email thông qua socket ở đây
-        smtp_socket.sendall(b'MAIL FROM: <sender@example.com>\r\n')
-        response = smtp_socket.recv(1024).decode()
-        print(response)  # Phản hồi từ server
+def send_mail(SMTP_HOST, SMTP_PORT, BUFFER_SIZE, DOMAIN, smtp_socket, username):
+    # whenever u want to sent your mail using SMTP, u have to send these following commands:
+    # HELO / EHLO
+    # MAIL FROM - includes a sender mailbox
+    # RCPT TO - includes a destination mailbox
+    # DATA - mail data
+    # QUIT
+    # After each command, u have to check the Code respone by the server (using valid_response func)
+    print("Enter destination mail: ")
+    destination_user = input()
+    print("Enter mail content: ")
+    data = input()
 
-        smtp_socket.sendall(b'RCPT TO: <receiver@example.com>\r\n')
-        response = smtp_socket.recv(1024).decode()
-        print(response)  # Phản hồi từ server
+    smtp_socket.connect((SMTP_HOST, SMTP_PORT))
+    if (smtp_valid_reponse(smtp_socket.recv(BUFFER_SIZE).decode()) == 0) : 
+        smtp_socket.sendall(('QUIT\r\n').encode())
+        return -1
 
-        smtp_socket.sendall(b'DATA\r\n')
-        response = smtp_socket.recv(1024).decode()
-        print(response)  # Phản hồi từ server
+    # HELO/EHLO
+    smtp_socket.sendall(('EHLO testserver.com\r\n' ).encode())
+    if (smtp_valid_reponse(smtp_socket.recv(BUFFER_SIZE).decode()) == 0) : 
+        smtp_socket.sendall(('QUIT\r\n').encode())
+        return -1    
+    # MAIL FROM
+    smtp_socket.sendall(('MAIL FROM: ' + username + DOMAIN + '\r\n').encode())
+    if (smtp_valid_reponse(smtp_socket.recv(BUFFER_SIZE).decode()) == 0) : 
+        smtp_socket.sendall(('QUIT\r\n').encode())
+        return -1
+    # RCPT TO
+    smtp_socket.sendall(('RCPT TO: ' + destination_user + DOMAIN + '\r\n').encode())
+    if (smtp_valid_reponse(smtp_socket.recv(BUFFER_SIZE).decode()) == 0) : 
+        smtp_socket.sendall(('QUIT\r\n').encode())
+        return -1
 
-        smtp_socket.sendall(b'Subject: Test email\r\n')
-        smtp_socket.sendall(b'\r\n')
-        smtp_socket.sendall(b'This is a test email\r\n')
-        smtp_socket.sendall(b'.\r\n')  # Kết thúc nội dung email
-        response = smtp_socket.recv(1024).decode()
-        print(response)  # Phản hồi từ server
+    # DATA
+    smtp_socket.sendall(('DATA\r\n').encode())
+    if (smtp_valid_reponse(smtp_socket.recv(BUFFER_SIZE).decode()) == 0) : 
+        smtp_socket.sendall(('QUIT\r\n').encode())
+        return -1
+    smtp_socket.sendall((data + '\r\n').encode())
+    smtp_socket.sendall(('.\r\n').encode())
+    if (smtp_valid_reponse(smtp_socket.recv(BUFFER_SIZE).decode()) == 0) : 
+        smtp_socket.sendall(('QUIT\r\n').encode())
+        return -1
 
-        # Đóng kết nối
-        smtp_socket.sendall(b'QUIT\r\n')
-        smtp_socket.close()
-
-        print("Email sent successfully!")
+    smtp_socket.sendall(('QUIT\r\n').encode())
+    print("Press Enter to continue.")
+    input()
