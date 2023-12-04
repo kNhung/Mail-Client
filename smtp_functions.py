@@ -11,8 +11,10 @@ def attach_file():
     file_path =''
     print("<Press 'X' to end adding file>")
     print("Max files size: 3 MB")
-    while file_path != 'X':
+    while 1:
         file_path = input("Path to file: ")
+        if file_path == 'X':
+            break
         if os.path.exists(file_path):
             file_size = os.path.getsize(file_path)
             if files_size + file_size <= MAX_FILES_SIZE:
@@ -20,17 +22,16 @@ def attach_file():
                 file_paths.append(file_path)
             else:
                 print("File size exceeds!!")
-                if file_size > 0:
+                if files_size > 0:
                     print("Do you want to delete previous file?")
                     choice = input("y/Yes  n/No")
                     if choice == 'y':
                         file_paths.pop()
                         files_size -= os.path.getsize(file_paths)
+        else:
+            print('File path is invalid!!')
+    return file_paths
             
-
-
-        
-
 def input_content():
     print("Content:")
     print("(type '-end-' to end content part)")
@@ -52,18 +53,22 @@ def write_mail():
     print("Do you want to attach file?")
     choice = input("y/Yes   n/No: ")
     if choice == 'y':
-        file_nums = input("Number of files: ")
-        i = 1
-        for i in file_nums:
-            file_path = input("Path to file {i}: ")
+        file_paths = attach_file()
+        attachments = []
+        cnt = 0
+        # encode files
+        for file_path in file_paths:
+            cnt += 1
             with open(file_path, 'rb') as attachment_file:
                 attachment_data = attachment_file.read()
                 base64_attachment = base64.b64encode(attachment_data).decode()
+                attachments.append(base64_attachment)
     else:
-        file_path = None
-        base64_attachment = None
+        cnt = 0
+        file_paths = None
+        attachments = None
 
-    mail = Email(sender,receiver,subject,content, file_path, base64_attachment)
+    mail = Email(sender,receiver,subject,content, cnt, file_paths, attachments)
     return mail
 
 
@@ -99,10 +104,15 @@ def send_email(SMTP_HOST, SMTP_PORT):
         smtp_socket.sendall(b'\r\n')
         smtp_socket.sendall(f'{mail.content}\r\n'.encode())
         smtp_socket.sendall(b'\r\n')
+        smtp_socket.sendall(f'Numbers of files: {mail.file_nums}\r\n'.encode())
+        smtp_socket.sendall(b'\r\n')
 
-        if mail.attachment != None:
-            smtp_socket.sendall(f'Content-Type: application/octet-stream; name="{mail.file_path}"\r\nContent-Disposition: attachment; filename="{mail.file_path}"\r\nContent-Transfer-Encoding: base64\r\n\r\n{mail.attachment}\r\n'.encode())
-        
+        i = 0
+        while i < mail.file_nums:
+            smtp_socket.sendall(f'Content-Type: application/octet-stream; name="{mail.file_paths[i]}"\r\nContent-Disposition: attachment; filename="{mail.file_paths[i]}"\r\nContent-Transfer-Encoding: base64\r\n\r\n{mail.attachments[i]}\r\n'.encode())
+            smtp_socket.sendall(b'\r\n')
+            i += 1
+
         smtp_socket.sendall(b'.\r\n')  # Kết thúc nội dung email
         response = smtp_socket.recv(1024).decode()
         print(response)  # Phản hồi từ server
