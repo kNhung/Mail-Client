@@ -1,12 +1,12 @@
 Server:
     SMTPServer: 127.0.0.1
     Pop3Server: 127.0.0.1
-    SMTP: 2225
-    POP3: 3335
+    SMTP: 2500
+    POP3: 1100
     bufferSize: 2046
-    domain: "@gmail.com"
+
 Authentication:
-    username: ducnhat@gmail.com
+    username: ducnhat
     password: xxxx #can be anything, due to it is test server
 # Filter:
 #     From: ahihi@testing.com, ahuu@testing.com
