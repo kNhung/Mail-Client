@@ -1,11 +1,15 @@
 import socket
 import client
+import os
+from extract_message import process_mime_message
+
 def pop3_valid_reponse(code) :
     code = code[:3]
     if (code == "+OK") : return 1
     else :
         print("Error occurred. Quiting...")
         print("Press Enter to continue.")
+        print("here?")
         input()
         return 0
     
@@ -50,7 +54,14 @@ def receive_mail():
     if (pop3_valid_reponse(message) == 0) : 
         pop3_socket.sendall(('QUIT\r\n').encode())
         return -1
-    print(message)
+    # Define the directory path
+    user_folder_path = os.path.join(os.getcwd(), "all_user/" +str(client.USERNAME))
+
+    # Check if the directory exists
+    if not os.path.exists(user_folder_path):
+        # Create the directory
+        os.makedirs(user_folder_path)
+    process_mime_message(message, user_folder_path)
     pop3_socket.sendall(b'DELE 1\r\n')
     message = pop3_socket.recv(client.BUFFER_SIZE).decode()
     if (pop3_valid_reponse(message) == 0) : 
