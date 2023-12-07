@@ -11,7 +11,6 @@ def process_mime_message(message_string, output_dir, indexMail):
     # Extract desired data
     data = {
         "Flag" : 'unread',
-        "Form": message["from"],
         "From": message["from"],
         "To": message["to"],
         "Date": message["date"],
