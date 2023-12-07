@@ -14,4 +14,3 @@ Authentication:
 #     Subject: "urgent", "ASAP", ... - To folder: Important
 #     Content: "report", "meeting", ...  - To folder: Work
 #     Spam: "virus", "hack", "crack", ... - To folder: Spam
-#smtp đòi ssl
