@@ -129,11 +129,11 @@ def send_mail():
     destination_user_cc = [item for item in destination_user_cc if item != ""]
     destination_user_bcc = [item for item in destination_user_bcc if item != ""]
 
-    if (destination_user_to[0] == "" and destination_user_cc[0] == "" and destination_user_bcc[0] == "") :
-        print("No receiver. Quitting...")
-        print("Press Enter to continue.")
-        input()
-        return -1
+    # if (destination_user_to[0] == "" and destination_user_cc[0] == "" and destination_user_bcc[0] == "") :
+    #     print("No receiver. Quitting...")
+    #     print("Press Enter to continue.")
+    #     input()
+    #     return -1
     subject = input("Subject: ")
     content = get_content()
     files = get_user_files()
