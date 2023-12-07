@@ -4,9 +4,10 @@ import os
 from extract_message import process_mime_message
 
 def pop3_valid_reponse(code) :
-    code = code[:3]
-    if (code == "+OK") : return 1
+    code_ = code[:3]
+    if (code_ == "+OK") : return 1
     else :
+        print(code)
         print("Error occurred. Quiting...")
         print("Press Enter to continue.")
         print("here?")
@@ -50,7 +51,14 @@ def receive_mail():
 
     # Return the content of the first mail
     pop3_socket.sendall(b'RETR 1\r\n')
-    message = pop3_socket.recv(client.BUFFER_SIZE).decode()
+    message = b''
+    while True:
+        part = pop3_socket.recv(client.BUFFER_SIZE)
+        message += part
+        if len(part) < client.BUFFER_SIZE:
+            # either 0 or end of data
+            break
+    message = message.decode()
     if (pop3_valid_reponse(message) == 0) : 
         pop3_socket.sendall(('QUIT\r\n').encode())
         return -1
@@ -62,7 +70,7 @@ def receive_mail():
         # Create the directory
         os.makedirs(user_folder_path)
     process_mime_message(message, user_folder_path)
-    pop3_socket.sendall(b'DELE 1\r\n')
+    pop3_socket.send('DELE 1\r\n'.encode())
     message = pop3_socket.recv(client.BUFFER_SIZE).decode()
     if (pop3_valid_reponse(message) == 0) : 
         pop3_socket.sendall(('QUIT\r\n').encode())

@@ -3,7 +3,7 @@ Server:
     Pop3Server: 127.0.0.1
     SMTP: 2500
     POP3: 1100
-    bufferSize: 163840
+    bufferSize: 51200
 
 Authentication:
     username: ducnhat
