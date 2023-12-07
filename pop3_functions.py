@@ -40,41 +40,57 @@ def receive_mail():
         return -1
     
     pop3_socket.sendall(('STAT' + '\r\n').encode())
-    if (pop3_valid_reponse(pop3_socket.recv(client.BUFFER_SIZE).decode()) == 0) : 
-        pop3_socket.sendall(('QUIT\r\n').encode())
-        return -1
-
-    pop3_socket.sendall(('LIST' + '\r\n').encode())
-    if (pop3_valid_reponse(pop3_socket.recv(client.BUFFER_SIZE).decode()) == 0) : 
-        pop3_socket.sendall(('QUIT\r\n').encode())
-        return -1
-
-    # Return the content of the first mail
-    pop3_socket.sendall(b'RETR 1\r\n')
-    message = b''
-    while True:
-        part = pop3_socket.recv(client.BUFFER_SIZE)
-        message += part
-        if len(part) < client.BUFFER_SIZE:
-            # either 0 or end of data
-            break
-    message = message.decode()
-    if (pop3_valid_reponse(message) == 0) : 
-        pop3_socket.sendall(('QUIT\r\n').encode())
-        return -1
-    # Define the directory path
-    user_folder_path = os.path.join(os.getcwd(), "all_user/" +str(client.USERNAME))
-
-    # Check if the directory exists
-    if not os.path.exists(user_folder_path):
-        # Create the directory
-        os.makedirs(user_folder_path)
-    process_mime_message(message, user_folder_path)
-    pop3_socket.send('DELE 1\r\n'.encode())
     message = pop3_socket.recv(client.BUFFER_SIZE).decode()
     if (pop3_valid_reponse(message) == 0) : 
         pop3_socket.sendall(('QUIT\r\n').encode())
         return -1
+    temp = message.split(' ')
+    total_mail = int(temp[1])
+    loaded_mail = count_files_in_folder(client.USERNAME)
+    while (loaded_mail < total_mail):
+        pop3_socket.sendall(('LIST' + '\r\n').encode())
+        if (pop3_valid_reponse(pop3_socket.recv(client.BUFFER_SIZE).decode()) == 0) : 
+            pop3_socket.sendall(('QUIT\r\n').encode())
+            return -1
+        pop3_socket.sendall(f'RETR {loaded_mail + 1}\r\n'.encode())
+        message = b''
+        while True:
+            part = pop3_socket.recv(client.BUFFER_SIZE)
+            message += part
+            if len(part) < client.BUFFER_SIZE:
+                # either 0 or end of data
+                break
+        message = message.decode()
+        if (pop3_valid_reponse(message) == 0) : 
+            pop3_socket.sendall(('QUIT\r\n').encode())
+            return -1
+        # Define the directory path
+        user_folder_path = os.path.join(os.getcwd(), "all_user", str(client.USERNAME))
+
+        # Check if the directory exists
+        if not os.path.exists(user_folder_path):
+            # Create the directory
+            os.makedirs(user_folder_path)
+        process_mime_message(message, user_folder_path, loaded_mail)
+        loaded_mail = count_files_in_folder(client.USERNAME)
+    print("All unloaded mails have been loaded.")
     pop3_socket.sendall(('QUIT\r\n').encode())
     print("Press Enter to continue.")
     input()
+
+def count_files_in_folder(username):
+  """
+  Counts the number of files in a folder, including files in subfolders.
+
+  Args:
+    username: The username we are counting file.
+
+  Returns:
+    The number of files in the folder and its subfolders.
+  """
+  file_list = []
+  folder_path = os.path.join(os.getcwd(), "all_user/" + username)
+  for root, _, files in os.walk(folder_path):
+    for file in files:
+        file_list.append(file)
+  return len(set(file_list))
