@@ -34,7 +34,7 @@ def to_cc_option (send_to, subject, content, files) :
     send_to = [item for item in send_to if item != ""]
     n = len(send_to)
     if (n == 0): 
-        return -1;
+        return -1
     for i in range (n) :
         smtp_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         smtp_socket.connect((client.SMTP_HOST, client.SMTP_PORT))
