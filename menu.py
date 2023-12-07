@@ -10,7 +10,6 @@ def change_username():
     print(client.USERNAME)
     print("Press Enter to continue.")
     input()
-    menu()
 
 def show_current_user(): 
     print(client.USERNAME)
