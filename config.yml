@@ -8,9 +8,13 @@ Server:
 Authentication:
     username: ducnhat
     password: xxxx #can be anything, due to it is test server
-# Filter:
-#     From: ahihi@testing.com, ahuu@testing.com
-#     To folder: Project
-#     Subject: "urgent", "ASAP", ... - To folder: Important
-#     Content: "report", "meeting", ...  - To folder: Work
-#     Spam: "virus", "hack", "crack", ... - To folder: Spam
+
+Rules:
+  - From: ["ahihi@testing.com", "ahuu@testing.com"]
+    Folder: Project
+  - Subject: ["urgent", "ASAP"]
+    Folder: Important
+  - Content: ["report", "meeting"]
+    Folder: Work
+  - Spam: ["virus", "hack", "crack"]
+    Folder: Spam

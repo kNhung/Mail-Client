@@ -3,6 +3,9 @@ import json
 import os
 import base64
 import client
+import yaml
+from typing import List, Dict
+
 
 def process_mime_message(message_string, output_dir, indexMail):
     temp = message_string.split('\r\n',1)
@@ -50,25 +53,29 @@ def process_mime_message(message_string, output_dir, indexMail):
     # with open(os.path.join(output_dir, "message_data.json"), "w") as f:
     #     json.dump(data, f, indent=4)
 
-def filter(dict):
-	# subject vừa có trong folder important và content vừa có trong folder spam
-	# nếu nằm cả 2:
-	#if subject include 'focus', 'urgent' return 'important'
-	#if content include 'virus', 'hack' return 'spam'
-	#return list
-	folder_list = []
-	if 'focus' in dict['Subject'] or 'urgent' in dict['Subject'] or 'ASAP' in dict['Subject']:
-		folder_list.append('important')
-	if 'virus' in dict['Content'] or 'hack' in dict['Content'] or 'crack' in dict['Content']:
-		folder_list.append('spam')
-	if 'myboss' in dict['From'] or 'enemy-company' in dict['From']:
-		folder_list.append('work')
-	if folder_list == []:
-		folder_list.append('inbox')
-	return folder_list
+
+def filter(dict_):
+    # Load the configuration file
+    with open('config.yml', encoding='utf-8') as f:
+        config = yaml.load(f, Loader=yaml.FullLoader)
+
+    # Check against rules
+    folder_list = []
+    for rule in config["Rules"]:
+        for field in ["Subject", "Content", "From"]:
+            if any(keyword in dict_[field] for keyword in rule.get(field, [])):
+                folder_list.append(rule["Folder"])
+                break
+
+    # Check against default folder if no rule matches
+    if not folder_list:
+        folder_list.append("Inbox")
+
+    return folder_list
+
 
 def create_folder(user):
-	lists = ['spam', 'important', 'inbox', 'project', 'work']
+	lists = ['Project', 'Important', 'Inbox', 'Work', 'Spam']
 	for folder in lists:
 		if not os.path.exists(f'all_user/{user}/{folder}'):
 			os.makedirs(f'all_user/{user}/{folder}')
