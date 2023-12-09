@@ -3,6 +3,7 @@ import client
 import os
 import json
 import time
+import save_local_file
 from extract_message import process_mime_message
 
 absolute_path = os.path.dirname(__file__) # đường dẫn tới project
@@ -105,9 +106,32 @@ def show_mail_choices():
             print("\tSubject: " + str(obj["Subject"]))
             print("\tContent: " + str(obj["Content"]))
             if obj["Attachments"] != []:
-                print("\tAttachments: " + str(obj["Attachments"]))
-                # print("This mail contains files. Do you want to download this file/these files from it?")
-                # option = print("y/Yes   n/No:")
+                # show the list of file in Attachments
+                m = len(obj["Attachments"])
+                for i in range(m):
+                    print(f"\tAttachment {i + 1}: {obj['Attachments'][i]['filename']}")
+                print("This mail contains files. Do you want to download this file/these files from it?")
+                # get user input into choice_2 variable
+                choice_2 = input("Enter your choice (Y/N): ")
+                if choice_2 == "":
+                    os.system('cls')
+                    show_mail_choices()
+                #if user input invalid choice
+                elif (choice_2).lower() not in ['y', 'n']:
+                    print("Invalid choice")
+                    # clear the screen
+                    os.system('cls')
+                    # show the menu again
+                    show_mail_choices()
+                #if user input valid choice
+                else:
+                    choice_2 = (choice_2).lower()
+                    if choice_2 == 'y':
+                        save_local_file.show_attachments(obj,"downloaded_files")
+                    else:
+                        os.system('cls')
+                        show_mail_choices()
+
             obj["Flag"] = 'read' #sau khi đọc mail này thì chuyển trạng thái của mail thành 'đã đọc'
             with open(os.path.join(absolute_path, f'all_user\\{client.USERNAME}\\{lists[_option]}\\mail{num_of_mail[choice_1_ - 1]}.json'),'w') as json_data_1:
                 json.dump(obj, json_data_1)
