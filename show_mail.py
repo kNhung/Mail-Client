@@ -4,10 +4,14 @@ import os
 import json
 import time
 import save_local_file
+import threading
+from pop3_functions import *
 from extract_message import process_mime_message
 
 absolute_path = os.path.dirname(__file__) # đường dẫn tới project
 lists = ['Inbox', 'Project', 'Important', 'Work', 'Spam'] # điều chỉnh lại danh sách theo thứ tự trong hướng dẫn
+load = False
+event = threading.Event()
 
 def count_files_in_specific_folder(username, filter): # đếm số lượng mail có trong 1 folder nhất định (ví dụ folder inbox có 3 mail thì trả ra 3)
   file_list = []
@@ -34,18 +38,38 @@ def count_files_in_folder(username):
         file_list.append(file)
   return len(set(file_list))
 
+def autoload():
+    global load
+    receive_mail()
+    while (load == True):
+        t = client.AUTOLOAD
+        while t:
+            mins, secs = divmod(t, 60)
+            timer = f'{mins:02d}:{secs:02d}'
+            #print the timer, ending with \r (carriage return) to overwrite itself 
+            #print(timer, end="\r")
+            time.sleep(1)
+            t -= 1
+        #after the timer ends, print the message then timer starts again
+        #print('Autoloaded!\r')
+        receive_mail()
 
 def show_mail_choices():
+    receive_mail()
     #get user input into _option variable
     _option = 0
+    # triggle the autoload function
+    global load
+    load = True
     #handle if DIR = absolute_path + f'\\all_user\\{client.USERNAME} does not exist
     if not os.path.exists(absolute_path + f'\\all_user\\{client.USERNAME}'):
-        print(f"Username: \'{client.USERNAME}\' haven't loaded any mail yet")
+        print(f"Username: \'{client.USERNAME}\' haven't had any mail yet")
         input("Press Enter to go back to main menu")
+        load = False
         return
-    
     while _option not in [f"{i}" for i in range(1, len(lists) + 1)]:
-        print(f"This is {client.USERNAME} folders.")
+        print(f"Autoloading after every {client.AUTOLOAD} second")
+        print(f"\nThis is {client.USERNAME} folders.")
         cnt = 1
         for folder in lists:
             print(f"{cnt}. {folder}")
@@ -63,7 +87,6 @@ def show_mail_choices():
     number_of_files_a_folder = count_files_in_specific_folder(client.USERNAME, lists[_option]) # số lượng mail
     #get folder name
     DIR = absolute_path + f'\\all_user\\{client.USERNAME}\\{lists[_option]}\\'
-
     #get file names
     file_names = os.listdir(DIR) # tên các mail trong folder (ví dụ khi print(file_names) sẽ ra ['mail1.json','mail2.json'])
     num_of_mail = [] 
@@ -139,4 +162,12 @@ def show_mail_choices():
         os.system('cls')
         show_mail_choices()
 
-    
+def autoload_show():
+    global load
+    load = True
+    t1 = threading.Thread(target=show_mail_choices)
+    t2 = threading.Thread(target=autoload)
+    t1.start()
+    t2.start()
+    t1.join()
+    #t2.join() don't have to wait for the thread t2 to finish

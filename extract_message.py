@@ -4,6 +4,7 @@ import os
 import base64
 import client
 import yaml
+import time
 from typing import List, Dict
 
 
@@ -92,4 +93,3 @@ def create_folder(user):
 	for folder in lists:
 		if not os.path.exists(f'all_user/{user}/{folder}'):
 			os.makedirs(f'all_user/{user}/{folder}')
-    #check if the folder named 'downloaded_files' exists

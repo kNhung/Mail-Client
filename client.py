@@ -1,9 +1,9 @@
 import socket
 import yaml
+import threading
 from smtp_functions import *
 from  pop3_functions import *
 from menu import *
-
 from consolemenu import *
 from consolemenu.items import *
 
@@ -18,7 +18,9 @@ POP3_HOST = config['Server']['Pop3Server']
 POP3_PORT = config['Server']['POP3']
 USERNAME = config['Authentication']['username']
 PASSWORD = config['Authentication']['password']
+AUTOLOAD = config['Autoload']["Time"]
 
 
 if __name__ == "__main__":
     menu()
+

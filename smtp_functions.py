@@ -166,7 +166,6 @@ def create_message(send_from, send_to, subject, text, files=None):
         msg.attach(part)
     return msg.as_string()
 
-
 def get_user_files():
   """
   Prompts the user to attach files and returns a list of file paths.

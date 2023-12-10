@@ -1,17 +1,14 @@
 import socket
 import client
 import os
+import time
 from extract_message import process_mime_message
 
 def pop3_valid_reponse(code) :
     code_ = code[:3]
     if (code_ == "+OK") : return 1
     else :
-        print(code)
-        print("Error occurred. Quiting...")
-        print("Press Enter to continue.")
-        print("here?")
-        input()
+        print("Error occurred while loading mail.")
         return 0
     
 def receive_mail():
@@ -23,7 +20,6 @@ def receive_mail():
     # RETR
     pop3_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-    print("Opening the first unread message:")
     pop3_socket.connect((client.POP3_HOST, client.POP3_PORT))
     if (pop3_valid_reponse(pop3_socket.recv(client.BUFFER_SIZE).decode()) == 0) : 
         pop3_socket.sendall(('QUIT\r\n').encode())
@@ -73,10 +69,8 @@ def receive_mail():
             os.makedirs(user_folder_path)
         process_mime_message(message, user_folder_path, loaded_mail)
         loaded_mail = count_files_in_folder(client.USERNAME)
-    print("All unloaded mails have been loaded.")
+    #print("All unloaded mails have been loaded.")
     pop3_socket.sendall(('QUIT\r\n').encode())
-    print("Press Enter to continue.")
-    input()
 
 def count_files_in_folder(username):
   """
@@ -94,3 +88,4 @@ def count_files_in_folder(username):
     for file in files:
         file_list.append(file)
   return len(set(file_list))
+

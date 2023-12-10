@@ -18,3 +18,5 @@ Rules:
     Folder: Work
   - Spam: ["virus", "hack", "crack"]
     Folder: Spam
+Autoload:
+  Time: 5 #seconds
