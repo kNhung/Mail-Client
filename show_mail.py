@@ -57,14 +57,10 @@ def show_mail_choices():
     load = True
     #handle if DIR = absolute_path + f'\\all_user\\{client.USERNAME} does not exist
     if not os.path.exists(absolute_path + f'\\all_user\\{client.USERNAME}'):
-        time1 = time.time()
         print(f"Username: \'{client.USERNAME}\' haven't had any mail yet")
         load = False
         input("Press Enter to go back to main menu")
         print("Waiting for the autoload thread to finish...")
-        time2 = time.time()
-        #wait for the autoload thread to finish
-        time.sleep((client.AUTOLOAD - (time2 - time1)) % client.AUTOLOAD)
         return
     while _option not in [f"{i}" for i in range(1, len(lists) + 1)]:
         print(f"Autoloading after every {client.AUTOLOAD} second")
@@ -169,4 +165,4 @@ def autoload_show():
     t1.start()
     t2.start()
     t1.join()
-    #t2.join() don't have to wait for the thread t2 to finish
+    t2.join() #don't have to wait for the thread t2 to finish
