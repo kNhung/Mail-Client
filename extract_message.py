@@ -50,11 +50,6 @@ def process_mime_message(message_string, output_dir, indexMail):
         with open(os.path.join(output_dir, folder, f"mail{indexMail + 1}.json"), "w") as f:
             json.dump(data, f, indent=4)
 
-    # # Save data to JSON file 
-    # with open(os.path.join(output_dir, "message_data.json"), "w") as f:
-    #     json.dump(data, f, indent=4)
-
-
 def filter(dict_):
     # Load the configuration file
     with open('config.yml', encoding='utf-8') as f:
@@ -89,7 +84,9 @@ def filter(dict_):
 
 
 def create_folder(user):
-	lists = ['Project', 'Important', 'Inbox', 'Work', 'Spam']
-	for folder in lists:
-		if not os.path.exists(f'all_user/{user}/{folder}'):
-			os.makedirs(f'all_user/{user}/{folder}')
+    lists = ['Project', 'Important', 'Inbox', 'Work', 'Spam']
+    if not os.path.exists(f'all_user/{user}'):
+        os.makedirs(f'all_user/{user}')
+    for folder in lists:
+        if not os.path.exists(f'all_user/{user}/{folder}'):
+            os.makedirs(f'all_user/{user}/{folder}')

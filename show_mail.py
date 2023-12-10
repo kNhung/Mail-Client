@@ -40,25 +40,19 @@ def count_files_in_folder(username):
 
 def autoload():
     global load
-    receive_mail()
     while (load == True):
         t = client.AUTOLOAD
         while t:
             mins, secs = divmod(t, 60)
             timer = f'{mins:02d}:{secs:02d}'
-            #print the timer, ending with \r (carriage return) to overwrite itself 
-            #print(timer, end="\r")
             time.sleep(1)
             t -= 1
-        #after the timer ends, print the message then timer starts again
-        #print('Autoloaded!\r')
         receive_mail()
 
 def show_mail_choices():
     receive_mail()
     #get user input into _option variable
     _option = 0
-    # triggle the autoload function
     global load
     load = True
     #handle if DIR = absolute_path + f'\\all_user\\{client.USERNAME} does not exist
@@ -69,7 +63,8 @@ def show_mail_choices():
         input("Press Enter to go back to main menu")
         print("Waiting for the autoload thread to finish...")
         time2 = time.time()
-        time.sleep(client.AUTOLOAD - (time2 - time1))
+        #wait for the autoload thread to finish
+        time.sleep((client.AUTOLOAD - (time2 - time1)) % client.AUTOLOAD)
         return
     while _option not in [f"{i}" for i in range(1, len(lists) + 1)]:
         print(f"Autoloading after every {client.AUTOLOAD} second")
