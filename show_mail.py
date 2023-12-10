@@ -43,6 +43,8 @@ def autoload():
     while (load == True):
         t = client.AUTOLOAD
         while t:
+            if load == False:
+                return
             mins, secs = divmod(t, 60)
             timer = f'{mins:02d}:{secs:02d}'
             time.sleep(1)
@@ -165,4 +167,4 @@ def autoload_show():
     t1.start()
     t2.start()
     t1.join()
-    t2.join() #don't have to wait for the thread t2 to finish
+    t2.join() 
