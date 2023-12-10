@@ -67,6 +67,19 @@ def filter(dict_):
                 folder_list.append(rule["Folder"])
                 break
 
+    # check against spam
+    rules_list = config["Rules"]
+    for rule in rules_list:
+        if "Spam" in rule:
+            spam_list = rule["Spam"]
+            break
+
+    if spam_list:
+        for field in ["Subject", "Content", "From"]:
+            if any(keyword in dict_[field] for keyword in spam_list):
+                folder_list.append("Spam")
+                break
+
     # Check against default folder if no rule matches
     if not folder_list:
         folder_list.append("Inbox")
