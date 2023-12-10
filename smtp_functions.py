@@ -1,5 +1,6 @@
 import socket
 import client
+import os
 from os.path import basename
 from email.mime.application import MIMEApplication
 from email.mime.multipart import MIMEMultipart
@@ -171,6 +172,8 @@ def get_user_files():
     A list of file paths entered by the user.
   """
   files = []
+  # variable that stores file size
+  file_size = 0
   # Prompt user for file attachment
   print("Do you want to attach file?")
   choice = input("Y/Yes   N/No: ").lower()
@@ -179,5 +182,11 @@ def get_user_files():
       user_input = input("Enter a file path (or leave blank to finish): ")
       if not user_input:
         break
-      files.append(user_input)
+      #handle file size
+      file_size += os.path.getsize(user_input)
+      if file_size > client.MAX_FILE_SIZE:
+        print(f"File size exceeds {client.MAX_FILE_SIZE/1024/1024} MB. Please try again.")
+        file_size -= os.path.getsize(user_input)
+      else:
+        files.append(user_input)
   return files

@@ -4,6 +4,7 @@ Server:
     SMTP: 2500
     POP3: 1100
     bufferSize: 51200
+    max_file_size: 3145728 #bytes
 
 Authentication:
     username: ducnhat

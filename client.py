@@ -11,11 +11,12 @@ from consolemenu.items import *
 with open('config.yml', encoding='utf-8') as f:
     config = yaml.load(f, Loader=yaml.FullLoader)
 
-BUFFER_SIZE = config['Server']['bufferSize']
 SMTP_HOST = config['Server']['SMTPServer']
 SMTP_PORT = config['Server']['SMTP']
 POP3_HOST = config['Server']['Pop3Server']
 POP3_PORT = config['Server']['POP3']
+BUFFER_SIZE = config['Server']['bufferSize']
+MAX_FILE_SIZE = config['Server']['max_file_size']
 USERNAME = config['Authentication']['username']
 PASSWORD = config['Authentication']['password']
 AUTOLOAD = config['Autoload']["Time"]
