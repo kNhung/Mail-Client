@@ -35,43 +35,41 @@ def to_cc_option (send_to, subject, content, files) :
     n = len(send_to)
     if (n == 0): 
         return -1
+    smtp_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    smtp_socket.connect((client.SMTP_HOST, client.SMTP_PORT))
+    if (smtp_valid_reponse(smtp_socket.recv(client.BUFFER_SIZE).decode()) == 0) : 
+        smtp_socket.sendall(('QUIT\r\n').encode())
+        return -1
+    # HELO/EHLO
+    smtp_socket.sendall(('EHLO testserver.com\r\n' ).encode())
+    if (smtp_valid_reponse(smtp_socket.recv(client.BUFFER_SIZE).decode()) == 0) : 
+        smtp_socket.sendall(('QUIT\r\n').encode())
+        return -1    
+    # MAIL FROM
+    smtp_socket.sendall(('MAIL FROM: ' + client.USERNAME + '\r\n').encode())
+    if (smtp_valid_reponse(smtp_socket.recv(client.BUFFER_SIZE).decode()) == 0) : 
+        smtp_socket.sendall(('QUIT\r\n').encode())
+        return -1
     for i in range (n) :
-        smtp_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        smtp_socket.connect((client.SMTP_HOST, client.SMTP_PORT))
-        if (smtp_valid_reponse(smtp_socket.recv(client.BUFFER_SIZE).decode()) == 0) : 
-            smtp_socket.sendall(('QUIT\r\n').encode())
-            return -1
-        # HELO/EHLO
-        smtp_socket.sendall(('EHLO testserver.com\r\n' ).encode())
-        if (smtp_valid_reponse(smtp_socket.recv(client.BUFFER_SIZE).decode()) == 0) : 
-            smtp_socket.sendall(('QUIT\r\n').encode())
-            return -1    
-        # MAIL FROM
-        smtp_socket.sendall(('MAIL FROM: ' + client.USERNAME + '\r\n').encode())
-        if (smtp_valid_reponse(smtp_socket.recv(client.BUFFER_SIZE).decode()) == 0) : 
-            smtp_socket.sendall(('QUIT\r\n').encode())
-            return -1
         # RCPT TO 
         smtp_socket.sendall(('RCPT TO: ' + send_to[i]  + '\r\n').encode())
         if (smtp_valid_reponse(smtp_socket.recv(client.BUFFER_SIZE).decode()) == 0) : 
             smtp_socket.sendall(('QUIT\r\n').encode())
             return -1
-
-        # data = "From: " + client.USERNAME + "\r\nTo:" + ",".join(destination_user_to[i] for i in range(n)) + "\r\nCC:" + ",".join(destination_user_cc[i] for i in range(n)) + "\r\nBCC:\r\nSubject:"  + subject + "\r\nContent: " + content + "\r\nDate:" + date_and_time()
-        data = create_message(client.USERNAME, send_to, subject, content, files)
-        # DATA
-        smtp_socket.sendall(('DATA\r\n').encode())
-        if (smtp_valid_reponse(smtp_socket.recv(client.BUFFER_SIZE).decode()) == 0) : 
-            smtp_socket.sendall(('QUIT\r\n').encode())
-            return -1
-        # smtp_socket.sendall((data + '\r\n').encode())
-        smtp_socket.sendall((data + '\r\n').encode())
-
-        smtp_socket.sendall(('.\r\n').encode())
-        if (smtp_valid_reponse(smtp_socket.recv(client.BUFFER_SIZE).decode()) == 0) : 
-            smtp_socket.sendall(('QUIT\r\n').encode())
-            return -1
+    # data = "From: " + client.USERNAME + "\r\nTo:" + ",".join(destination_user_to[i] for i in range(n)) + "\r\nCC:" + ",".join(destination_user_cc[i] for i in range(n)) + "\r\nBCC:\r\nSubject:"  + subject + "\r\nContent: " + content + "\r\nDate:" + date_and_time()
+    data = create_message(client.USERNAME, send_to, subject, content, files)
+    # DATA
+    smtp_socket.sendall(('DATA\r\n').encode())
+    if (smtp_valid_reponse(smtp_socket.recv(client.BUFFER_SIZE).decode()) == 0) : 
         smtp_socket.sendall(('QUIT\r\n').encode())
+        return -1
+    # smtp_socket.sendall((data + '\r\n').encode())
+    smtp_socket.sendall((data + '\r\n').encode())
+    smtp_socket.sendall(('.\r\n').encode())
+    if (smtp_valid_reponse(smtp_socket.recv(client.BUFFER_SIZE).decode()) == 0) : 
+        smtp_socket.sendall(('QUIT\r\n').encode())
+        return -1
+    smtp_socket.sendall(('QUIT\r\n').encode())
 
 def bcc_option(destination_user_bcc, subject, content, files) :
     destination_user_bcc = [item for item in destination_user_bcc if item != ""]
@@ -99,7 +97,6 @@ def bcc_option(destination_user_bcc, subject, content, files) :
         if (smtp_valid_reponse(smtp_socket.recv(client.BUFFER_SIZE).decode()) == 0) : 
             smtp_socket.sendall(('QUIT\r\n').encode())
             return -1
-
         # data = "From: " + client.USERNAME + "\r\nTo:\r\nCC:\r\nBCC:" + destination_user_bcc[i] + "\r\nSubject:"  + subject + "\r\nContent: " + content + "\r\nDate:" 
         data = create_message(client.USERNAME, [destination_user_bcc[i]], subject, content, files)
         # DATA
