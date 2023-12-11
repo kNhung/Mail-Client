@@ -73,6 +73,7 @@ def show_mail_choices():
             cnt += 1
         _option = input("Select a folder in your mailbox (Press Enter to go back to main Menu): ")
         if _option == "":
+            load = False
             return
         if _option not in [f"{i}" for i in range(1, len(lists) + 1)]:
             print("Invalid")
@@ -111,6 +112,7 @@ def show_mail_choices():
     if choice_1 == '': # #nếu nhấn Enter thì thoát về danh sách các folder 1. Inbox, 2. Important,...
         os.system('cls')
         show_mail_choices()
+        return
     else :
         choice_1_ = int(choice_1)
         if choice_1_ < 1 or choice_1_ > number_of_files_a_folder:
@@ -136,6 +138,8 @@ def show_mail_choices():
                 if choice_2 == "":
                     os.system('cls')
                     show_mail_choices()
+                    return
+                    # return
                 #if user input invalid choice
                 elif (choice_2).lower() not in ['y', 'n']:
                     print("Invalid choice")
@@ -143,6 +147,7 @@ def show_mail_choices():
                     os.system('cls')
                     # show the menu again
                     show_mail_choices()
+                    return
                 #if user input valid choice
                 else:
                     choice_2 = (choice_2).lower()
@@ -151,13 +156,14 @@ def show_mail_choices():
                     else:
                         os.system('cls')
                         show_mail_choices()
+                        return
 
             obj["Flag"] = 'read' #sau khi đọc mail này thì chuyển trạng thái của mail thành 'đã đọc'
             with open(os.path.join(absolute_path, f'all_user\\{client.USERNAME}\\{lists[_option]}\\mail{num_of_mail[choice_1_ - 1]}.json'),'w') as json_data_1:
                 json.dump(obj, json_data_1)
-        input(f"\nPress Enter to go back {lists[_option]} folder:") # sau khi đọc mail thì nhấn Enter để về danh sách các mail trong folder đang đọc
         os.system('cls')
         show_mail_choices()
+        return
 
 def autoload_show():
     global load

@@ -45,7 +45,8 @@ def show_attachments(json_obj, folder_name):
             # clear the screen
             os.system('cls')
             # show the menu again
-            show_attachments(json_obj)
+            show_attachments(json_obj, folder_name)
+            return
         # else recreate the file
         else:
             # get the index of the attachment in the list

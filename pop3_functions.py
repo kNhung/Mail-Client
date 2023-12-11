@@ -18,9 +18,14 @@ def receive_mail():
     # STAT
     # LIST
     # RETR
+    global load
     pop3_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
-    pop3_socket.connect((client.POP3_HOST, client.POP3_PORT))
+    try:    
+        pop3_socket.connect((client.POP3_HOST, client.POP3_PORT))
+    except:
+        print("ConnectionRefusedError: [WinError 10061] No connection could be made because the target machine actively refused it")
+        load = False
+        return -1
     if (pop3_valid_reponse(pop3_socket.recv(client.BUFFER_SIZE).decode()) == 0) : 
         pop3_socket.sendall(('QUIT\r\n').encode())
         return -1

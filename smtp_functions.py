@@ -37,7 +37,12 @@ def to_cc_option (send_to, subject, content, files) :
     if (n == 0): 
         return -1
     smtp_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    smtp_socket.connect((client.SMTP_HOST, client.SMTP_PORT))
+    try:
+        smtp_socket.connect((client.SMTP_HOST, client.SMTP_PORT))
+    except:
+        print("ConnectionRefusedError: [WinError 10061] No connection could be made because the target machine actively refused it")
+        input("Press Enter to continue.")
+        return -1
     if (smtp_valid_reponse(smtp_socket.recv(client.BUFFER_SIZE).decode()) == 0) : 
         smtp_socket.sendall(('QUIT\r\n').encode())
         return -1
@@ -127,11 +132,11 @@ def send_mail():
     destination_user_cc = [item for item in destination_user_cc if item != ""]
     destination_user_bcc = [item for item in destination_user_bcc if item != ""]
 
-    # if (destination_user_to[0] == "" and destination_user_cc[0] == "" and destination_user_bcc[0] == "") :
-    #     print("No receiver. Quitting...")
-    #     print("Press Enter to continue.")
-    #     input()
-    #     return -1
+    if (len(destination_user_to) == 0) and (len(destination_user_cc) == 0 and len(destination_user_bcc) == 0) :
+        print("Receiver input required. Quitting...")
+        print("Press Enter to continue.")
+        input()
+        return -1
     subject = input("Subject: ")
     content = get_content()
     files = get_user_files()
