@@ -20,7 +20,7 @@ MAX_FILE_SIZE = config['Server']['max_file_size']
 USERNAME = config['Authentication']['username']
 PASSWORD = config['Authentication']['password']
 AUTOLOAD = config['Autoload']["Time"]
-
+load = False
 
 if __name__ == "__main__":
     menu()

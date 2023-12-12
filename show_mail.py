@@ -10,7 +10,6 @@ from extract_message import process_mime_message
 
 absolute_path = os.path.dirname(__file__) # đường dẫn tới project
 lists = ['Inbox', 'Project', 'Important', 'Work', 'Spam'] # điều chỉnh lại danh sách theo thứ tự trong hướng dẫn
-load = False
 event = threading.Event()
 
 def count_files_in_specific_folder(username, filter): # đếm số lượng mail có trong 1 folder nhất định (ví dụ folder inbox có 3 mail thì trả ra 3)
@@ -52,11 +51,15 @@ def autoload():
         receive_mail()
 
 def show_mail_choices():
-    receive_mail()
+    global load
+    try:
+        receive_mail()
+    except Exception as e:
+        load = False
+        input("Press Enter to go back to main menu")
     #get user input into _option variable
     _option = 0
-    global load
-    load = True
+    # load = True
     #handle if DIR = absolute_path + f'\\all_user\\{client.USERNAME} does not exist
     if not os.path.exists(absolute_path + f'\\all_user\\{client.USERNAME}'):
         print(f"Username: \'{client.USERNAME}\' haven't had any mail yet")
@@ -104,10 +107,15 @@ def show_mail_choices():
         # problem here
         with open(os.path.join(absolute_path, f'all_user\\{client.USERNAME}\\{lists[_option]}\\mail{num_of_mail[i]}.json'),'r') as json_data:
             obj = json.load(json_data) # chạy theo thứ tự mail đầu tiên, mail thứ 2, .. Trong folder 'inbox' hoặc...
-        if str(obj["Flag"]) == 'unread':
-            print(f'{i + 1}. <{str(obj["Flag"])}> <From: {str(obj["From"])}>, <Subject: {str(obj["Subject"])}>')
-        elif str(obj["Flag"]) == 'read':
-            print(f'{i + 1}. <From: {str(obj["From"])}>, <Subject: {str(obj["Subject"])}>')
+        # if str(obj["Flag"]) == 'unread':
+        #     print(f'{i + 1}. <{str(obj["Flag"])}> <From: {str(obj["From"])}>, <Subject: {str(obj["Subject"])}>')
+        # elif str(obj["Flag"]) == 'read':
+        #     print(f'{i + 1}. <From: {str(obj["From"])}>, <Subject: {str(obj["Subject"])}>')
+        if str(obj["Flag"]) == "unread":
+            print(f"{i + 1}. <{str(obj['Flag'])}> <From: {str(obj['From'])}>, <Subject: {str(obj['Subject']) or '<no subject>'}>")
+        elif str(obj["Flag"]) == "read":
+            print(f"{i + 1}. <From: {str(obj['From'])}>, <Subject: {str(obj['Subject']) or '<no subject>'}>")
+
     choice_1 = input("Select which mail you want to read (Press Enter to Go back): ") #sau khi hiển thị danh sách các mail và trạng thái đã đọc hay chưa thì cho người dùng chọn mail bất kỳ để đọc
     if choice_1 == '': # #nếu nhấn Enter thì thoát về danh sách các folder 1. Inbox, 2. Important,...
         os.system('cls')
@@ -118,6 +126,9 @@ def show_mail_choices():
         if choice_1_ < 1 or choice_1_ > number_of_files_a_folder:
             return
         else:
+            obj["Flag"] = 'read' #sau khi đọc mail này thì chuyển trạng thái của mail thành 'đã đọc'
+            with open(os.path.join(absolute_path, f'all_user\\{client.USERNAME}\\{lists[_option]}\\mail{num_of_mail[choice_1_ - 1]}.json'),'w') as json_data_1:
+                json.dump(obj, json_data_1)
             os.system('cls')
             with open(os.path.join(absolute_path, f'all_user\\{client.USERNAME}\\{lists[_option]}\\mail{num_of_mail[choice_1_ - 1]}.json'),'r') as json_data_1:
                 obj = json.load(json_data_1) # truy cập và đọc file json
@@ -157,10 +168,7 @@ def show_mail_choices():
                         os.system('cls')
                         show_mail_choices()
                         return
-
-            obj["Flag"] = 'read' #sau khi đọc mail này thì chuyển trạng thái của mail thành 'đã đọc'
-            with open(os.path.join(absolute_path, f'all_user\\{client.USERNAME}\\{lists[_option]}\\mail{num_of_mail[choice_1_ - 1]}.json'),'w') as json_data_1:
-                json.dump(obj, json_data_1)
+        input("Press Enter to go back to previous folder")
         os.system('cls')
         show_mail_choices()
         return

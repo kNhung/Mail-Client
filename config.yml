@@ -7,7 +7,7 @@ Server:
     max_file_size: 3145728 #bytes
 
 Authentication:
-    username: ducnhat
+    username: ducnhat24
     password: xxxx #can be anything, due to it is test server
 
 Rules:
